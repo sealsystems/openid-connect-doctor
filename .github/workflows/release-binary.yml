@@ -1,0 +1,32 @@
+name: release-binary
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-binary:
+    name: build-binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Setup Node.js version
+        uses: actions/setup-node@main
+        with:
+          node-version: 16.15.0
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install
+      - name: Build application
+        run: npm run build
+      - name: Bundle
+        run: npm run bundle
+      - name: Generate Binary
+        run: npm run binary
+      - run: chmod -R +x openid-*
+      - name: Upload artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'openid-*'

@@ -1,0 +1,73 @@
+name: continous-integration
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'Deliverables/**'
+      - 'Documentation/**'
+jobs:
+  run-unit-tests:
+    strategy:
+      matrix:
+        node-version: [16.15.0]
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node.js $ {{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+      - name: Run Tests
+        run: npm test
+
+  run-keycloak:
+    name: keycloak
+    runs-on: ubuntu-latest
+    container: 
+      image: bitnami/keycloak:latest
+      env:
+        KEYCLOAK_CREATE_ADMIN_USER: true
+        KEYCLOAK_ADMIN_USER: oidc-admin
+        KEYCLOAK_ADMIN_PASSWORD: bitnami
+        KEYCLOAK_MANAGEMENT_USER: oidc-manager
+        KEYCLOAK_MANAGEMENT_PASSWORD: bitnami1
+        KEYCLOAK_DATABASE_HOST: postgres
+        KEYCLOAK_DATABASE_PORT: 5432
+        KEYCLOAK_DATABASE_NAME: bitnami_keycloak
+        KEYCLOAK_DATABASE_USER: bn_keycloak
+        KEYCLOAK_DATABASE_PASSWORD: pass
+      ports:
+        #http
+        - 8080:8080
+        #https
+        - 8443:8443
+        #ajp
+        - 8009:8009
+        #management
+        - 9990:9990
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: bitnami_keycloak
+          POSTGRES_USER: bn_keycloak
+          POSTGRES_PASSWORD: pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 8
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
