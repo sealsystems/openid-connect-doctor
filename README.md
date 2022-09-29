@@ -7,7 +7,7 @@
 The OpenID Connect Doctor is a tool for the creation of authentication configurations with OpenID for your applications. That includes also the verification of valid tokens and password grants. You can download the configuration in a JSON format and include it into any application then.
 
 ## Documentation
-The documentation can be found in the [Documentation-Folder](https://github.com/sealsystems/openid-connect-doctor/blob/main/Documentation/user-documentation.md).
+The documentation can be found in the [Documentation-Folder](https://github.com/sealsystems/openid-connect-doctor/blob/master/Documentation/user-documentation.md).
 If you find any mistakes or if you have an idea how to improve the documentation, please create an issue or a pull-request.
 
 ## Local Development
